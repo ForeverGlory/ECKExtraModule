@@ -2,13 +2,6 @@
 
 /**
  * @file
- * The title behavior makes a property behave like a title.
- * 
- * 1) When then entity is view, we set the page title to be the 
- *    properties value.
- * 2) We set the property as the label of the entity.
- * 3) The property can be entered by the user with a text field.
- * 4) The property is displayed as an h1 tag.
  */
 $plugin = array(
   'label' => "Date",
