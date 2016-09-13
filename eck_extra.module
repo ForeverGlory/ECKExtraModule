@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * Implements hook_views_api().
+ */
+function eck_extra_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'eck_extra') . '/includes/views',
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function eck_extra_field_extra_fields() {
+  $return = array();
+  return $return;
+  foreach (EntityType::loadAll() as $entity_type) {
+    foreach (Bundle::loadByEntityType($entity_type) as $bundle) {
+      foreach ($entity_type->properties as $name => $propertie) {
+        if (!in_array($name, array('uid', 'created', 'changed'))) {
+          $return[$entity_type->name][$bundle->name]['form'][$name] = array(
+            'label' => t($propertie['label']),
+            'weight' => 0
+          );
+        }
+        $return[$entity_type->name][$bundle->name]['display'][$name] = array(
+          'label' => t($propertie['label']),
+          'weight' => 0
+        );
+      }
+    }
+  }
+  return $return;
+}
+
+function eck_extra_entity_view_alter(&$build, $entity_type) {
+  return;
+  foreach (EntityType::loadAll() as $type) {
+    if ($type->name == $entity_type) {
+      foreach ($type->properties as $name => $propertie) {
+        if (!empty($build['#entity']->$name)) {
+          $output = '';
+          if (in_array($name, array('uid', 'client'))) {
+            $account = user_load($build['#entity']->$name);
+            $output = $account->name;
+          }
+          elseif (in_array($name, array('created', 'changed', 'confirmd', 'start', 'stop', 'begin', 'end'))) {
+            $output = date('Y-m-d', $build['#entity']->$name);
+          }
+          elseif (in_array($propertie['type'], array('decimal'))) {
+            $output = number_format($build['#entity']->$name, 2);
+          }
+          elseif (in_array($name, array('money', 'sum', 'initiate', 'increase','quota'))) {
+            $output = number_format($build['#entity']->$name);
+          }
+          else {
+            $output = $build['#entity']->$name;
+          }
+          $build[$name] = array(
+            '#markup' => theme('field', array(
+              'element' => array(
+                '#label_display' => 'inline',
+                '#title' => t($propertie['label']),
+                '#items' => array(0),
+                '#field_name' => $name,
+                '#field_type' => 'textfield',
+                '#bundle' => $build['#entity']->type,
+                array('#markup' => $output)
+              ),
+            ))
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_eck_default_properties().
+ */
+function eck_extra_eck_default_properties() {
+  //默认属性 Properties
+  $default_properties = array();
+  //  $default_properties['test'] = array(
+  //    'label' => "This is test Property",
+  //    'type' => "text",
+  //    'behavior' => 'some_behavior',
+  //  );
+  return $default_properties;
+}
+
+/**
+ * Implements hook_eck_property_types().
+ */
+function eck_extra_eck_property_types() {
+  $types = array();
+  //新属性类型
+  //$types = array("mail" => t("Mail"));
+  return $types;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function eck_extra_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'eck' && $plugin_type == 'property_behavior') {
+    return 'plugins/' . $plugin_type;
+  }
+}
