@@ -1,14 +1,11 @@
 name = ECK Extra
-description = 
+description = ECK Extra, add some property behaviors, views handlers, view modes
 package = ECK
 core = 7.x
 dependencies[] = eck
 
 files[] = views/handlers/eck_extra_views_handler_field.inc
-files[] = views/handlers/eck_extra_views_handler_field_status.inc
 files[] = views/handlers/eck_extra_views_handler_field_link.inc
-
-configure = admin/config
 
 project = eck_extra
 version = 7.x-1.x
